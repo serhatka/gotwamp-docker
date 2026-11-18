@@ -1,0 +1,32 @@
+name: Build gotwamp Docker Image
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download gotwamp source
+        uses: actions/checkout@v4
+        with:
+          repository: Akkanbe/gotwamp
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            --platform linux/amd64 \
+            -f deploy/docker/Dockerfile \
+            -t gotwamp:latest .
+
+      - name: Export Docker image
+        run: |
+          docker save gotwamp:latest | gzip > gotwamp.tar.gz
+
+      - name: Upload image
+        uses: actions/upload-artifact@v4
+        with:
+          name: gotwamp-docker-amd64
+          path: gotwamp.tar.gz
+          retention-days: 7
